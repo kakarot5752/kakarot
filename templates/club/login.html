@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script src="/static/club/js/jquery-1.12.4.min.js"></script>
+    <script>
+        function check() {
+            var uname = $('.name_input').val();
+            var upwd = $('.pwd_input').val();
+            if(uname == ''||uname == ' '*uname.length){
+                alert('用户名不能为空');
+                return false;
+            }else if(upwd == ''||upwd == ' '*upwd.length){
+                alert('密码不能为空');
+                return false;
+            }else{
+                return true;
+            }
+        }
+    </script>
+    <style>
+        .con{
+            width: 400px;
+            height: 400px;
+            margin: 50px auto 0;
+        }
+        .con ul {
+            list-style: none;
+        }
+        .login_title{
+            height: 60px;
+            width: 400px;
+            margin: 10px auto;
+            border-bottom:1px solid #000;
+        }
+        .login_title h1{
+            font-size:24px;
+            height: 60px;
+            line-height:60px;
+            color: #000;
+            float: left;
+            font-weight:bold;
+            margin: 0 0 0 44px;
+        }
+        .login_title a{
+            height: 60px;
+            display: block;
+            font-size: 20px;
+            line-height:60px;
+            color: cyan;
+            float: right;
+            margin:0 44px 0 0;
+            text-decoration: none;
+        }
+        .form_input{
+            width: 400px;
+            height: 250px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .name_input, .pwd_input{
+            width: 400px;
+            height: 36px;
+            border:1px solid #e0e0e0;
+            background: url(/static/club/images/icons.png) 370px -41px no-repeat #f8f8f8;
+            outline:none;
+            font-size: 14px;
+            text-indent:10px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .pwd_input{
+            top: 65px;
+            background-position: 370px -95px;
+        }
+
+        .submit_input{
+            width: 400px;
+            height: 36px;
+            position: absolute;
+            left: 0;
+            top: 125px;
+        }
+    </style>
+</head>
+<body>
+<div class="con">
+    <div class="login_title">
+        <h1>登&nbsp;&nbsp;&nbsp;&nbsp;录</h1>
+        <a href="/register">立即注册</a>
+    </div>
+    <form name="form" action="/loginHandle/" method="post" class="form_input" onsubmit="return check()">
+        {% csrf_token %}
+        <input type="text" name="uname" placeholder="请输入用户名" class="name_input">
+        <input type="password" name="upwd" placeholder="请输入密码" class="pwd_input">
+        <input type="submit" value="登录" class="submit_input">
+    </form>
+</div>
+</body>
+</html>

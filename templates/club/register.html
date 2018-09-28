@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <script src="/static/club/js/jquery-1.12.4.min.js"></script>
+    <script>
+        $(function () {
+
+            $('#send_msg').click(sendmsg);
+            $('#uname').blur(function() {
+                check_uname();
+            }).focus(function() {
+                $(this).next().hide();
+            });
+            $('#upwd').blur(function() {
+                check_pwd();
+            }).focus(function() {
+                $(this).next().hide();
+            });
+            $('#cpwd').blur(function() {
+                check_cpwd();
+            }).focus(function() {
+                $(this).next().hide();
+            });
+            $('#uemail').blur(function() {
+                check_email();
+            }).focus(function() {
+                $(this).next().hide();
+            });
+            $('#umsg').blur(function() {
+                check_umsg();
+            }).focus(function() {
+                $('#umsg_error').hide();
+            });
+            $('.reg_form').submit(function () {
+                check_uname();
+                check_pwd();
+                check_cpwd();
+                check_email();
+                check_umsg();
+                var umsg_val = $('#umsg').val();
+                var uphone_val = $('#uphone').val();
+                if(error_name||error_pwd||error_cpwd||error_email||error_msg){
+                    return false;
+                }
+                $.ajaxSettings.async = false;
+                $.post('/check_umsg/',{'umsg':umsg_val,'uphone':uphone_val},function (data) {
+                    if(data!='ok'){
+                        $('#umsg_error').html('验证码不正确').show();
+                        return false;
+                    }
+                });
+                $.ajaxSettings.async = true;
+            })
+        });
+        var error_name = false;
+        var error_pwd = false;
+        var error_cpwd = false;
+        var error_email = false;
+        var error_msg = false;
+        var countdown = 60;
+        var state = '';
+
+        function sendmsg() {
+            uphone = $('#uphone').val();
+            $.ajaxSetup({data:{csrfmiddlewaretoken:'{{ csrf_token }}'}});
+            $.post('/sendmsg/',
+                {
+                    'uphone':uphone
+                },
+                function (data) {
+                    state = data['msg'];
+                    if(state == 'ok'){
+                        alert('发送成功');
+                        settime()
+                    }
+                    else {
+                        alert(state)
+                    }
+                }
+            );
+
+
+        }
+
+        function settime() {
+            if(countdown == 0) {
+                $("#send_msg").attr("disabled", false);
+                $("#send_msg").attr("value", "获取验证码");
+                countdown = 60;
+            } else {
+                $("#send_msg").attr("disabled", true);
+                $("#send_msg").attr("value", "重新发送(" + countdown + ")");
+                countdown--;
+                setTimeout(settime, 1000)
+            }
+
+        }
+
+        function check_uname() {
+            var val = $('#uname').val();
+            var re = /^\w{5,15}$/i;
+            if(val==''||val==' '*val.length){
+                $('#uname').next().html('用户名不能为空').show();
+                error_name = true;
+                return
+            }
+            if(re.test(val)){
+                $.ajaxSetup({data:{csrfmiddlewaretoken:'{{ csrf_token }}'}});
+                $.post('/check_uname/', {
+                    'uname':val
+                },function (data) {
+                    if(data.count==1){
+                        $('#uname').next().html('用户名已存在').show();
+                        error_name = true;
+                    }else{
+                        error_name = false;
+                    }
+                });
+
+            }else{
+                error_name = true;
+                $('#uname').next().html('用户名是包含数字、字母、下划线的5-15位字符').show()
+            }
+        }
+        function check_pwd() {
+            var val = $('#upwd').val();
+            var re = /^[a-zA-Z0-9@\$\*\.\,\!\?]{6,16}$/;
+            if(val ==''||val == ' '*val.length){
+                $('#upwd').next().html('密码不能为空').show();
+                error_pwd = true;
+                return;
+            }
+            if(re.test(val)){
+                error_pwd = false;
+            }
+            else{
+                error_pwd = true;
+                $('#upwd').next().html('密码是仅可包含数字、字母、@$*,!?的6-16位字符').show();
+            }
+        }
+        function check_cpwd() {
+            var val = $('#upwd').val();
+            var cval = $('#cpwd').val();
+            if(val ==cval){
+                error_cpwd = false;
+            }else{
+                error_cpwd = true;
+                $('#cpwd').next().html('两次输入的密码不同，请重新输入').show();
+            }
+        }
+        function check_email() {
+            var val = $('#uemail').val();
+            var re = /^\w*@[\w]*(\.)[0-9a-z]{2,4}$/i;
+            if(re.test(val)){
+                error_email = false;
+            }else{
+                error_email = true;
+                $('#uemail').next().html('请输入正确的邮箱地址').show();
+            }
+        }
+        function check_umsg() {
+            var val = $('#umsg').val();
+            var re  = /^\d{4}$/;
+            if(re.test(val)){
+                error_msg = false;
+            }else{
+                error_msg = true;
+                if(val != ''){
+                    $('#umsg_error').html('验证码是4位数字').show();
+                }
+
+            }
+        }
+    </script>
+    <style>
+        body, ul, ol, p, h1, h2, h3, h4, h5, h6, dl, dd, select, input, textarea, form{
+            padding: 0;
+            margin: 0;
+        }
+        .con{
+            width: 400px;
+            height: 400px;
+            margin: 50px auto 0;
+        }
+        .con ul {
+            list-style: none;
+        }
+        .reg_title{
+            height: 60px;
+            width: 400px;
+            margin: 10px auto;
+            border-bottom:1px solid #000;
+        }
+        .reg_title h1{
+            font-size:24px;
+            height: 60px;
+            line-height:60px;
+            color: #000;
+            float: left;
+            font-weight:bold;
+            margin: 0 0 0 44px;
+        }
+        .reg_title a{
+            height: 60px;
+            display: block;
+            font-size: 20px;
+            line-height:60px;
+            color: cyan;
+            float: right;
+            margin:0 44px 0 0;
+            text-decoration: none;
+        }
+        .reg_form{
+            width: 400px;
+            float: left;
+            position: relative;
+        }
+        .reg_form li{
+            height: 70px;
+        }
+        .reg_form li label{
+            width: 70px;
+            height: 40px;
+            line-height: 40px;
+            float: left;
+            font-size:14px;
+            color: #a8a8a8;
+        }
+        .reg_form li input{
+            width: 328px;
+            height: 38px;
+            border: 1px solid #e0e0e0;
+            float: left;
+            outline:none;
+            text-indent: 10px;
+            background-color: #f8f8f8;
+        }
+        .reg_form li .error_tip{
+            float: left;
+            height: 30px;
+            line-height: 30px;
+            margin-left: 70px;
+            color: #e62e2e;
+            display: none;
+        }
+        .reg_form li.reg_sub input{
+            width: 400px;
+            height: 40px;
+            line-height: 30px;
+            font-size: 18px;
+            color: #000;
+            cursor:pointer;
+        }
+        .reg_form li .umsg input{
+            width: 158px;
+            float: left;
+            margin-right: 60px;
+        }
+        .reg_form li .umsg #send_msg{
+            width: 100px;
+            margin-right:0;
+            float: right;
+            height: 40px;
+            border: 1px solid #e0e0e0;
+            font-size:14px;
+        }
+    </style>
+</head>
+<body>
+<div class="con">
+    <div class="reg_title">
+        <h1>注&nbsp;&nbsp;&nbsp;&nbsp;册</h1>
+        <a href="/login">登陆</a>
+    </div>
+    <form class="reg_form" action="/registerHandle/" method="post">
+        {% csrf_token %}
+        <ul>
+            <li>
+                <label>账号：</label>
+                <input type="text" name="uname" id="uname">
+                <span class="error_tip">提示信息</span>
+            </li>
+            <li>
+                <label>密码：</label>
+                <input type="password" name="upwd" id="upwd">
+                <span class="error_tip">提示信息</span>
+            </li>
+            <li>
+                <label>确认密码：</label>
+                <input type="password" name="cpwd" id="cpwd">
+                <span class="error_tip">提示信息</span>
+            </li>
+            <li>
+                <label>邮箱：</label>
+                <input type="email" name="uemail" id="uemail">
+                <span class="error_tip">提示信息</span>
+            </li>
+            <li>
+                <label>手机：</label>
+                <input type="text" name="uphone" id="uphone">
+                <span class="error_tip">提示信息</span>
+            </li>
+            <li>
+                <label>验证码：</label>
+                <div class="umsg">
+                    <input type="text" name="umsg" id="umsg">
+                    <input type="button" id="send_msg" value="获取验证码">
+                </div>
+                <span class="error_tip" id="umsg_error">提示信息</span>
+            </li>
+
+            <li class="reg_sub">
+                <input type="submit" value="注册">
+            </li>
+        </ul>
+    </form>
+</div>
+</body>
+</html>
