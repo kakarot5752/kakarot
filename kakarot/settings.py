@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'r2k@@5_j3*gd%+(#e3gy10xf6h11+m(8xz3t%v*mg%))ef1y3j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -135,3 +135,5 @@ SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
+
+STATIC_ROOT = '/var/www/kakarot/static/'

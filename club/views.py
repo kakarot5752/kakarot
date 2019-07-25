@@ -36,7 +36,11 @@ def loginHandle(request):
         if user.upwd == pwd:
             request.session['uname'] = uname
             request.session.set_expiry(0)
-            return HttpResponse('登陆成功')
+            context = {'uname': uname,
+                       'delayer': 'window.location.pathname = "./"',
+                       'url': '/',
+                       'method': '登陆'}
+            return render(request, 'club/delayer.html', context)
 
         return HttpResponse('账号或密码不正确')
 
@@ -122,4 +126,12 @@ def registerHandle(request):
     user.uemail = uemail
     user.uphone = uphone
     user.save()
-    return HttpResponse('注册成功')
+    context = {'uname':uname,
+               'delayer':'window.location.pathname = "/login"',
+               'url':'/login',
+               'method':'注册'}
+    return render(request, 'club/delayer.html', context)
+
+def logout(request):
+    del request.session['uname']
+    return redirect('/')
